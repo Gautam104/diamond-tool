@@ -24,7 +24,7 @@ if cost_file and panding_file and lab_file:
     lab.columns = lab.columns.str.strip()
 
     # ================= COST CLEAN =================
-    cost = cost[["Lot #", "Shape", "Color", "Clarity", "Cts.", "Lab"]]
+    cost = cost[["Lot #", "Shape", "Color", "Clarity", "Cts.", "Lab", "Quality"]]
     cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
 
     # ================= PANDING MERGE =================
