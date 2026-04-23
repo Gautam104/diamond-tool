@@ -57,7 +57,12 @@ if cost_file and panding_file and lab_file:
         "Cts.",
         "No of Days",
         "Lab",
-        "Quality"
+        "Quality",
+        "UPDATED PRICE",
+        "DIFFERENCE",
+        "Cost Amt",
+        "Sale Amt",
+        "Difference"
     ]]
 
     # ================= OUTPUT =================
