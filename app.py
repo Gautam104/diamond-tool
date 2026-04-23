@@ -13,7 +13,7 @@ if cost_file and panding_file and lab_file:
     # Read files
     cost = pd.read_excel(cost_file)
     panding = pd.read_excel(panding_file)
-    lab = pd.read_excel(lab_file)
+    lab = pd.read_excel(lab_file, header=1)
 
     # Clean column names (remove extra spaces)
     cost.columns = cost.columns.str.strip()
