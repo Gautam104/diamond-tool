@@ -55,8 +55,8 @@ if cost_file and panding_file and lab_file:
         "Color",
         "Clarity",
         "Cts.",
-        "Lab",
         "No of Days",
+        "Lab",
         "Quality"
     ]]
 
