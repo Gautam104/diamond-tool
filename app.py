@@ -56,7 +56,8 @@ if cost_file and panding_file and lab_file:
         "Clarity",
         "Cts.",
         "Lab",
-        "No of Days"
+        "No of Days",
+        "Quality"
     ]]
 
     # ================= OUTPUT =================
