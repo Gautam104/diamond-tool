@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
+from io import BytesIO
 
 st.title("Diamond Automation Tool")
 
+# Upload files
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
 panding_file = st.file_uploader("Upload Panding File", type=["xlsx"])
 lab_file = st.file_uploader("Upload Lab File", type=["xlsx"])
@@ -13,7 +15,7 @@ if cost_file and panding_file and lab_file:
     cost = pd.read_excel(cost_file)
     panding = pd.read_excel(panding_file)
 
-    # IMPORTANT: Lab file header fix (your file starts from row 3)
+    # Lab file has header in 3rd row
     lab = pd.read_excel(lab_file, header=2)
 
     # Clean column names
@@ -29,15 +31,10 @@ if cost_file and panding_file and lab_file:
     panding = panding[["Lot #", "Status"]]
     cost = cost.merge(panding, on="Lot #", how="left")
 
-    # ================= LAB FIX =================
+    # ================= LAB CLEAN =================
 
-    # Show columns (for debug)
-    st.write("Lab Columns:", lab.columns)
-
-    # Find Stock column (contains 'Stock')
+    # Find correct columns automatically
     stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
-
-    # Find Days column (contains 'old')
     days_col = [c for c in lab.columns if "old" in c.lower()][0]
 
     lab = lab[[stock_col, days_col]]
@@ -50,10 +47,30 @@ if cost_file and panding_file and lab_file:
     # ================= MERGE =================
     cost = cost.merge(lab, on="Lot #", how="left")
 
+    # ================= FINAL FORMAT =================
+    cost = cost[[
+        "Lot #",
+        "Status",
+        "Shape",
+        "Color",
+        "Clarity",
+        "Cts.",
+        "Lab",
+        "No of Days"
+    ]]
+
     # ================= OUTPUT =================
     st.success("Done ✅")
     st.dataframe(cost)
 
-    # Download
-    output = cost.to_excel(index=False)
-    st.download_button("Download Final File", output, file_name="Final_Output.xlsx")
+    # ================= DOWNLOAD FIX =================
+    buffer = BytesIO()
+    cost.to_excel(buffer, index=False, engine='openpyxl')
+    buffer.seek(0)
+
+    st.download_button(
+        label="Download Final Excel File",
+        data=buffer,
+        file_name="Final_Output.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
