@@ -49,24 +49,36 @@ if cost_file and panding_file and lab_file:
     cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= QUALITY FIX =================
-    # If Quality is blank → check Rapnet Note
+    # VERY IMPORTANT:
+    # Excel blank cells sometimes come as:
+    # "", Blank, blank, NaN, spaces
 
     cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
     cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
 
-    # Fill CVD if Rapnet Note contains CVD
+    # Treat "Blank" also as empty
+    cost["Quality"] = cost["Quality"].replace(
+        ["Blank", "blank", "BLANK", "nan", "NaN"],
+        ""
+    )
+
+    # If Quality is empty and Rapnet Note contains CVD → fill CVD
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("CVD", na=False)),
         "Quality"
     ] = "CVD"
 
-    # Fill HPHT if Rapnet Note contains HPHT
+    # If Quality is empty and Rapnet Note contains HPHT → fill HPHT
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("HPHT", na=False)),
         "Quality"
     ] = "HPHT"
+
+    # Final safety:
+    # If still blank after checking → keep blank
+    cost["Quality"] = cost["Quality"].replace("", "")
 
     # ================= PANDING MERGE =================
     panding = panding[["Lot #", "Status"]]
