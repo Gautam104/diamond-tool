@@ -7,7 +7,12 @@ st.title("Diamond Automation Tool")
 # Upload files
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
 panding_file = st.file_uploader("Upload Panding File", type=["xlsx"])
-lab_file = st.file_uploader("Upload Lab File", type=["xlsx"])
+
+# Last file allow XLS + XLSX
+lab_file = st.file_uploader(
+    "Upload Lab File",
+    type=["xls", "xlsx"]
+)
 
 if cost_file and panding_file and lab_file:
 
@@ -49,36 +54,28 @@ if cost_file and panding_file and lab_file:
     cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= QUALITY FIX =================
-    # VERY IMPORTANT:
-    # Excel blank cells sometimes come as:
-    # "", Blank, blank, NaN, spaces
-
     cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
     cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
 
-    # Treat "Blank" also as empty
+    # Treat Blank also as empty
     cost["Quality"] = cost["Quality"].replace(
         ["Blank", "blank", "BLANK", "nan", "NaN"],
         ""
     )
 
-    # If Quality is empty and Rapnet Note contains CVD → fill CVD
+    # Fill CVD from Rapnet Note
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("CVD", na=False)),
         "Quality"
     ] = "CVD"
 
-    # If Quality is empty and Rapnet Note contains HPHT → fill HPHT
+    # Fill HPHT from Rapnet Note
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("HPHT", na=False)),
         "Quality"
     ] = "HPHT"
-
-    # Final safety:
-    # If still blank after checking → keep blank
-    cost["Quality"] = cost["Quality"].replace("", "")
 
     # ================= PANDING MERGE =================
     panding = panding[["Lot #", "Status"]]
@@ -121,9 +118,20 @@ if cost_file and panding_file and lab_file:
     st.success("Done ✅")
     st.dataframe(cost)
 
-    # ================= DOWNLOAD EXCEL =================
+    # ================= DOWNLOAD EXCEL WITH BOLD HEADER =================
     buffer = BytesIO()
-    cost.to_excel(buffer, index=False, engine="openpyxl")
+
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        cost.to_excel(writer, index=False, sheet_name="Final Output")
+
+        worksheet = writer.sheets["Final Output"]
+
+        # Make header bold
+        from openpyxl.styles import Font
+
+        for cell in worksheet[1]:
+            cell.font = Font(bold=True)
+
     buffer.seek(0)
 
     st.download_button(
