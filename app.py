@@ -24,8 +24,26 @@ if cost_file and panding_file and lab_file:
     lab.columns = lab.columns.str.strip()
 
     # ================= COST CLEAN =================
-    cost = cost[["Lot #", "Shape", "Color", "Clarity", "Cts.", "Lab", "Quality","Price / Cts","Cost / Cts."]]
+    cost = cost[[
+        "Lot #",
+        "Shape",
+        "Color",
+        "Clarity",
+        "Cts.",
+        "Lab",
+        "Quality",
+        "Price / Cts",
+        "Cost / Cts."
+    ]]
+
+    # Keep only required Lab values
     cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
+
+    # Keep only valid one-letter diamond colors
+    valid_colors = ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
+
+    cost["Color"] = cost["Color"].astype(str).str.strip()
+    cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= PANDING MERGE =================
     panding = panding[["Lot #", "Status"]]
@@ -33,7 +51,7 @@ if cost_file and panding_file and lab_file:
 
     # ================= LAB CLEAN =================
 
-    # Find correct columns automatically
+    # Auto find correct columns
     stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
     days_col = [c for c in lab.columns if "old" in c.lower()][0]
 
@@ -66,9 +84,9 @@ if cost_file and panding_file and lab_file:
     st.success("Done ✅")
     st.dataframe(cost)
 
-    # ================= DOWNLOAD FIX =================
+    # ================= DOWNLOAD EXCEL =================
     buffer = BytesIO()
-    cost.to_excel(buffer, index=False, engine='openpyxl')
+    cost.to_excel(buffer, index=False, engine="openpyxl")
     buffer.seek(0)
 
     st.download_button(
