@@ -121,9 +121,20 @@ if cost_file and panding_file and lab_file:
     st.success("Done ✅")
     st.dataframe(cost)
 
-    # ================= DOWNLOAD EXCEL =================
+ # ================= DOWNLOAD EXCEL WITH BOLD HEADER =================
     buffer = BytesIO()
-    cost.to_excel(buffer, index=False, engine="openpyxl")
+
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        cost.to_excel(writer, index=False, sheet_name="Final Output")
+
+        worksheet = writer.sheets["Final Output"]
+
+        # Make header bold
+        from openpyxl.styles import Font
+
+        for cell in worksheet[1]:
+            cell.font = Font(bold=True)
+
     buffer.seek(0)
 
     st.download_button(
