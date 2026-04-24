@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-st.title("Diamond Automation Tool")
+st.title("Diamond Tool")
 
 # Upload files
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
-panding_file = st.file_uploader("Upload Panding File", type=["xlsx"])
+panding_file = st.file_uploader("Upload Pending File", type=["xlsx"])
 
 # Last file allow XLS + XLSX
 lab_file = st.file_uploader(
