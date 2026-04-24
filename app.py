@@ -15,7 +15,7 @@ if cost_file and panding_file and lab_file:
     cost = pd.read_excel(cost_file)
     panding = pd.read_excel(panding_file)
 
-    # Lab file has header in 3rd row
+    # Lab file header starts from row 3
     lab = pd.read_excel(lab_file, header=2)
 
     # Clean column names
@@ -33,26 +33,51 @@ if cost_file and panding_file and lab_file:
         "Lab",
         "Quality",
         "Price / Cts",
-        "Cost / Cts."
+        "Cost / Cts.",
+        "Rapnet Note"
     ]]
 
-    # Keep only required Lab values
+    # ================= LAB FILTER =================
+    # Keep only GIA / IGI / GCAL
     cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
 
-    # Keep only valid one-letter diamond colors
+    # ================= COLOR FILTER =================
+    # Keep only valid one-letter colors
     valid_colors = ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
 
     cost["Color"] = cost["Color"].astype(str).str.strip()
     cost = cost[cost["Color"].isin(valid_colors)]
 
+    # ================= QUALITY FIX =================
+    # If Quality is blank → check Rapnet Note
+
+    cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
+    cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
+
+    # Fill CVD if Rapnet Note contains CVD
+    cost.loc[
+        (cost["Quality"] == "") &
+        (cost["Rapnet Note"].str.contains("CVD", na=False)),
+        "Quality"
+    ] = "CVD"
+
+    # Fill HPHT if Rapnet Note contains HPHT
+    cost.loc[
+        (cost["Quality"] == "") &
+        (cost["Rapnet Note"].str.contains("HPHT", na=False)),
+        "Quality"
+    ] = "HPHT"
+
     # ================= PANDING MERGE =================
     panding = panding[["Lot #", "Status"]]
     cost = cost.merge(panding, on="Lot #", how="left")
 
-    # ================= LAB CLEAN =================
+    # ================= LAB GROWN FILE CLEAN =================
 
-    # Auto find correct columns
+    # Auto detect Stock# column
     stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
+
+    # Auto detect How old stone column
     days_col = [c for c in lab.columns if "old" in c.lower()][0]
 
     lab = lab[[stock_col, days_col]]
