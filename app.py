@@ -55,6 +55,17 @@ if cost_file and panding_file and lab_file:
     cost["Color"] = cost["Color"].astype(str).str.strip()
     cost = cost[cost["Color"].isin(valid_colors)]
 
+    # ================= VP SERIES DELETE =================
+    # If Lot # starts with VP
+    # Example: VP041A
+    # Delete entire row
+
+    cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
+
+    cost = cost[
+        ~cost["Lot #"].str.upper().str.startswith("VP")
+    ]
+
     # ================= QUALITY FIX =================
     # Fill Quality from Rapnet Note if blank
 
