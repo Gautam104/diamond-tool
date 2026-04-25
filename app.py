@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+from openpyxl.styles import Font
 
 st.title("Diamond Tool")
 
@@ -77,9 +78,9 @@ if cost_file and panding_file and lab_file:
         "Quality"
     ] = "HPHT"
 
-    # ================= PANDING FILE FIX =================
+    # ================= PENDING FILE FIX =================
     # If Customer = GOODS IN TRANSIT FROM OVERSEAS
-    # then change Status = OnMemo → Inhand
+    # and Status = OnMemo → change to Inhand
 
     panding["Customer"] = panding["Customer"].fillna("").astype(str).str.strip().str.upper()
     panding["Status"] = panding["Status"].fillna("").astype(str).str.strip()
@@ -90,7 +91,7 @@ if cost_file and panding_file and lab_file:
         "Status"
     ] = "Inhand"
 
-    # ================= PANDING MERGE =================
+    # ================= PENDING MERGE =================
     panding = panding[["Lot #", "Status"]]
     cost = cost.merge(panding, on="Lot #", how="left")
 
@@ -111,6 +112,24 @@ if cost_file and panding_file and lab_file:
 
     # ================= MERGE =================
     cost = cost.merge(lab, on="Lot #", how="left")
+
+    # ================= NO OF DAYS FIX =================
+    # If Lot # starts with DM or DC
+    # AND No of Days = 0
+    # Then make No of Days blank
+
+    cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
+    cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
+
+    cost.loc[
+        (
+            cost["Lot #"].str.upper().str.startswith(("DM", "DC"))
+        ) &
+        (
+            cost["No of Days"] == 0
+        ),
+        "No of Days"
+    ] = ""
 
     # ================= FINAL FORMAT =================
     cost = cost[[
@@ -140,8 +159,6 @@ if cost_file and panding_file and lab_file:
         worksheet = writer.sheets["Final Output"]
 
         # Make header bold
-        from openpyxl.styles import Font
-
         for cell in worksheet[1]:
             cell.font = Font(bold=True)
 
