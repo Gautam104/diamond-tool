@@ -56,9 +56,7 @@ if cost_file and panding_file and lab_file:
     cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= VP SERIES DELETE =================
-    # If Lot # starts with VP
-    # Example: VP041A
-    # Delete entire row
+    # Delete rows where Lot # starts with VP
 
     cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
 
@@ -72,20 +70,19 @@ if cost_file and panding_file and lab_file:
     cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
     cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
 
-    # Treat Blank also as empty
     cost["Quality"] = cost["Quality"].replace(
         ["Blank", "blank", "BLANK", "nan", "NaN"],
         ""
     )
 
-    # Fill CVD from Rapnet Note
+    # Fill CVD
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("CVD", na=False)),
         "Quality"
     ] = "CVD"
 
-    # Fill HPHT from Rapnet Note
+    # Fill HPHT
     cost.loc[
         (cost["Quality"] == "") &
         (cost["Rapnet Note"].str.contains("HPHT", na=False)),
@@ -93,37 +90,33 @@ if cost_file and panding_file and lab_file:
     ] = "HPHT"
 
     # ================= PENDING FILE FIX =================
-    # If Customer = GOODS IN TRANSIT FROM OVERSEAS
-    # and Status = OnMemo → change to Inhand
 
     panding["Customer"] = panding["Customer"].fillna("").astype(str).str.strip().str.upper()
     panding["Status"] = panding["Status"].fillna("").astype(str).str.strip()
 
     panding.loc[
-    (
         (
-            panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS"
-        ) |
+            (
+                panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS"
+            ) |
+            (
+                panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE"
+            )
+        ) &
         (
-            panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE"
-        )
-    ) &
-    (
-        panding["Status"].str.upper() == "ONMEMO"
-    ),
-    "Status"
-] = "Inhand"
+            panding["Status"].str.upper() == "ONMEMO"
+        ),
+        "Status"
+    ] = "Inhand"
 
     # ================= PENDING MERGE =================
+
     panding = panding[["Lot #", "Status"]]
     cost = cost.merge(panding, on="Lot #", how="left")
 
     # ================= LAB GROWN FILE CLEAN =================
 
-    # Auto detect Stock# column
     stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
-
-    # Auto detect How old stone column
     days_col = [c for c in lab.columns if "old" in c.lower()][0]
 
     lab = lab[[stock_col, days_col]]
@@ -134,12 +127,11 @@ if cost_file and panding_file and lab_file:
     })
 
     # ================= MERGE =================
+
     cost = cost.merge(lab, on="Lot #", how="left")
 
     # ================= NO OF DAYS FIX =================
-    # If Lot # starts with DM or DC
-    # AND No of Days = 0
-    # Then make No of Days blank in Excel
+    # DM / DC series + No of Days = 0 → blank
 
     cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
     cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
@@ -155,6 +147,7 @@ if cost_file and panding_file and lab_file:
     ] = np.nan
 
     # ================= FINAL FORMAT =================
+
     cost = cost[[
         "Lot #",
         "Status",
@@ -169,11 +162,21 @@ if cost_file and panding_file and lab_file:
         "Quality"
     ]]
 
+    # ================= SIMPLE TOTAL DIAMOND COUNT =================
+
+    st.success("Processing Completed Successfully ✅")
+
+    total_diamond = len(cost)
+
+    st.markdown(f"## Total Diamonds: {total_diamond}")
+    st.markdown("---")
+
     # ================= OUTPUT =================
-    st.success("Done ✅")
+
     st.dataframe(cost)
 
     # ================= DOWNLOAD EXCEL WITH BOLD HEADER =================
+
     buffer = BytesIO()
 
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
@@ -181,7 +184,6 @@ if cost_file and panding_file and lab_file:
 
         worksheet = writer.sheets["Final Output"]
 
-        # Make header bold
         for cell in worksheet[1]:
             cell.font = Font(bold=True)
 
