@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from io import BytesIO
 from openpyxl.styles import Font
 
@@ -9,7 +10,7 @@ st.title("Diamond Tool")
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
 panding_file = st.file_uploader("Upload Pending File", type=["xlsx"])
 
-# Last file allow XLS + XLSX
+# Lab file supports XLS + XLSX
 lab_file = st.file_uploader(
     "Upload Lab File",
     type=["xls", "xlsx"]
@@ -55,6 +56,8 @@ if cost_file and panding_file and lab_file:
     cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= QUALITY FIX =================
+    # Fill Quality from Rapnet Note if blank
+
     cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
     cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
 
@@ -116,7 +119,7 @@ if cost_file and panding_file and lab_file:
     # ================= NO OF DAYS FIX =================
     # If Lot # starts with DM or DC
     # AND No of Days = 0
-    # Then make No of Days blank
+    # Then make No of Days blank in Excel
 
     cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
     cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
@@ -129,7 +132,7 @@ if cost_file and panding_file and lab_file:
             cost["No of Days"] == 0
         ),
         "No of Days"
-    ] = ""
+    ] = np.nan
 
     # ================= FINAL FORMAT =================
     cost = cost[[
