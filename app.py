@@ -100,10 +100,19 @@ if cost_file and panding_file and lab_file:
     panding["Status"] = panding["Status"].fillna("").astype(str).str.strip()
 
     panding.loc[
-        (panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS") &
-        (panding["Status"].str.upper() == "ONMEMO"),
-        "Status"
-    ] = "Inhand"
+    (
+        (
+            panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS"
+        ) |
+        (
+            panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE"
+        )
+    ) &
+    (
+        panding["Status"].str.upper() == "ONMEMO"
+    ),
+    "Status"
+] = "Inhand"
 
     # ================= PENDING MERGE =================
     panding = panding[["Lot #", "Status"]]
