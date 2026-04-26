@@ -9,12 +9,7 @@ st.title("Diamond Tool")
 # Upload files
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
 panding_file = st.file_uploader("Upload Pending File", type=["xlsx"])
-
-# Lab file supports XLS + XLSX
-lab_file = st.file_uploader(
-    "Upload Lab File",
-    type=["xls", "xlsx"]
-)
+lab_file = st.file_uploader("Upload Lab File", type=["xls", "xlsx"])
 
 if cost_file and panding_file and lab_file:
 
@@ -43,18 +38,16 @@ if cost_file and panding_file and lab_file:
         "Rapnet Note"
     ]]
 
-    # ================= LAB FILTER =================
+    # Keep only GIA / IGI / GCAL
     cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
 
     # ================= COLOR FILTER =================
     valid_colors = ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
-
     cost["Color"] = cost["Color"].astype(str).str.strip()
     cost = cost[cost["Color"].isin(valid_colors)]
 
     # ================= VP SERIES DELETE =================
     cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
-
     cost = cost[
         ~cost["Lot #"].str.upper().str.startswith("VP")
     ]
@@ -100,16 +93,10 @@ if cost_file and panding_file and lab_file:
 
     panding.loc[
         (
-            (
-                panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS"
-            ) |
-            (
-                panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE"
-            )
+            (panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS") |
+            (panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE")
         ) &
-        (
-            panding["Status"].str.upper() == "ONMEMO"
-        ),
+        (panding["Status"].str.upper() == "ONMEMO"),
         "Status"
     ] = "Inhand"
 
@@ -132,10 +119,8 @@ if cost_file and panding_file and lab_file:
     cost = cost.merge(lab, on="Lot #", how="left")
 
     # ================= NO OF DAYS FIX =================
-    cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
     cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
 
-    # DM / DC + 0 days = blank
     cost.loc[
         (
             cost["Lot #"].str.upper().str.startswith(("DM", "DC"))
@@ -146,7 +131,7 @@ if cost_file and panding_file and lab_file:
         "No of Days"
     ] = np.nan
 
-    # ================= SIZE GRP AUTO CREATE =================
+    # ================= SIZE GROUP =================
     def get_size_grp(cts):
         if pd.isna(cts):
             return ""
@@ -169,150 +154,70 @@ if cost_file and panding_file and lab_file:
             return "0.90 - 0.99"
         elif 1.00 <= cts <= 1.05:
             return "1.00 - 1.05"
-        elif 1.06 <= cts <= 1.10:
-            return "1.06 - 1.10"
-        elif 1.11 <= cts <= 1.49:
-            return "1.11 - 1.49"
-        elif 1.50 <= cts <= 1.55:
-            return "1.50 - 1.55"
-        elif 1.56 <= cts <= 1.59:
-            return "1.56 - 1.59"
-        elif 1.60 <= cts <= 1.99:
-            return "1.60 - 1.99"
-        elif 2.00 <= cts <= 2.05:
-            return "2.00 - 2.05"
-        elif 2.06 <= cts <= 2.10:
-            return "2.06 - 2.10"
-        elif 2.11 <= cts <= 2.49:
-            return "2.11 - 2.49"
-        elif 2.50 <= cts <= 2.55:
-            return "2.50 - 2.55"
-        elif 2.56 <= cts <= 2.59:
-            return "2.56 - 2.59"
-        elif 2.60 <= cts <= 2.99:
-            return "2.60 - 2.99"
-        elif 3.00 <= cts <= 3.05:
-            return "3.00 - 3.05"
-        elif 3.06 <= cts <= 3.10:
-            return "3.06 - 3.10"
-        elif 3.11 <= cts <= 3.49:
-            return "3.11 - 3.49"
-        elif 3.50 <= cts <= 3.55:
-            return "3.50 - 3.55"
-        elif 3.56 <= cts <= 3.59:
-            return "3.56 - 3.59"
-        elif 3.60 <= cts <= 3.99:
-            return "3.60 - 3.99"
-        elif 4.00 <= cts <= 4.05:
-            return "4.00 - 4.05"
-        elif 4.06 <= cts <= 4.10:
-            return "4.06 - 4.10"
-        elif 4.11 <= cts <= 4.49:
-            return "4.11 - 4.49"
-        elif 4.50 <= cts <= 4.55:
-            return "4.50 - 4.55"
-        elif 4.56 <= cts <= 4.59:
-            return "4.56 - 4.59"
-        elif 4.60 <= cts <= 4.99:
-            return "4.60 - 4.99"
-        elif 5.00 <= cts <= 5.49:
-            return "5.00 - 5.49"
-        elif 5.50 <= cts <= 5.99:
-            return "5.50 - 5.99"
-        elif 6.00 <= cts <= 6.99:
-            return "6.00 - 6.99"
-        elif 7.00 <= cts <= 7.99:
-            return "7.00 - 7.99"
-        elif 8.00 <= cts <= 8.99:
-            return "8.00 - 8.99"
-        elif 9.00 <= cts <= 9.99:
-            return "9.00 - 9.99"
-        elif 10.00 <= cts <= 10.99:
-            return "10.00 - 10.99"
-        elif 11.00 <= cts <= 11.99:
-            return "11.00 - 11.99"
-        elif 12.00 <= cts <= 12.99:
-            return "12.00 - 12.99"
         else:
             return ""
 
     cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
 
+    # ================= EXTRA COLUMNS =================
+    cost["UPDATED PRICE"] = ""
+    cost["DIFFERENCE"] = ""
+    cost["Cost Amt"] = ""
+    cost["Sale Amt"] = ""
+    cost["Differance"] = ""
 
-# ================= ADD EXTRA COLUMNS =================
+    # ================= FORMULAS =================
+    valid_size_grp = [
+        "0.30 - 0.39",
+        "0.40 - 0.49",
+        "0.50 - 0.59",
+        "0.60 - 0.69",
+        "0.70 - 0.79",
+        "0.80 - 0.89"
+    ]
 
-# Blank column
-cost["UPDATED PRICE"] = ""
+    for i in range(len(cost)):
+        if cost.loc[i, "Size Grp"] in valid_size_grp:
+            row_num = i + 2
 
-# Formula columns
-cost["DIFFERENCE"] = ""
-cost["Cost Amt"] = ""
-cost["Sale Amt"] = ""
-cost["Differance"] = ""
+            cost.loc[i, "Cost Amt"] = f"=J{row_num}*F{row_num}"
+            cost.loc[i, "Sale Amt"] = f"=N{row_num}*F{row_num}"
+            cost.loc[i, "Differance"] = f"=Q{row_num}-P{row_num}"
+            cost.loc[i, "DIFFERENCE"] = f"=-ROUND((K{row_num}-N{row_num})/K{row_num}*100,2)"
 
-# ================= APPLY FORMULAS =================
+    # ================= FINAL FORMAT =================
+    cost = cost[[
+        "Lot #",
+        "Status",
+        "Shape",
+        "Color",
+        "Clarity",
+        "Cts.",
+        "Size Grp",
+        "No of Days",
+        "Price / Cts",
+        "Cost / Cts.",
+        "GIA #",
+        "Lab",
+        "Quality",
+        "UPDATED PRICE",
+        "DIFFERENCE",
+        "Cost Amt",
+        "Sale Amt",
+        "Differance"
+    ]]
 
-valid_size_grp = [
-    "0.30 - 0.39",
-    "0.40 - 0.49",
-    "0.50 - 0.59",
-    "0.60 - 0.69",
-    "0.70 - 0.79",
-    "0.80 - 0.89"
-]
-
-for i in range(len(cost)):
-    if cost.loc[i, "Size Grp"] in valid_size_grp:
-        row_num = i + 2
-
-        # Cost Amt = Cost / Cts × Cts
-        cost.loc[i, "Cost Amt"] = f"=J{row_num}*F{row_num}"
-
-        # Sale Amt = Updated Price × Cts
-        cost.loc[i, "Sale Amt"] = f"=N{row_num}*F{row_num}"
-
-        # Differance = Sale Amt - Cost Amt
-        cost.loc[i, "Differance"] = f"=Q{row_num}-P{row_num}"
-
-        # Difference %
-        cost.loc[i, "DIFFERENCE"] = f"=-ROUND((K{row_num}-N{row_num})/K{row_num}*100,2)"
-
-# ================= FINAL FORMAT =================
-# VERY IMPORTANT → keep this AFTER formulas
-
-cost = cost[[
-    "Lot #",
-    "Status",
-    "Shape",
-    "Color",
-    "Clarity",
-    "Cts.",
-    "Size Grp",
-    "No of Days",
-    "Price / Cts",
-    "Cost / Cts.",
-    "GIA #",
-    "Lab",
-    "Quality",
-    "UPDATED PRICE",
-    "DIFFERENCE",
-    "Cost Amt",
-    "Sale Amt",
-    "Differance"
-]]
-
-
-    # ================= TOTAL DIAMOND COUNT =================
+    # ================= TOTAL COUNT =================
     st.success("Processing Completed Successfully ✅")
-
     total_diamond = len(cost)
+
     st.markdown(f"## Total Diamonds: {total_diamond}")
     st.markdown("---")
 
     # ================= OUTPUT =================
     st.dataframe(cost)
 
-    # ================= DOWNLOAD EXCEL =================
+    # ================= DOWNLOAD =================
     buffer = BytesIO()
 
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
@@ -320,7 +225,6 @@ cost = cost[[
 
         worksheet = writer.sheets["Final Output"]
 
-        # Bold header
         for cell in worksheet[1]:
             cell.font = Font(bold=True)
 
