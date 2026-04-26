@@ -166,26 +166,7 @@ if cost_file and panding_file and lab_file:
     cost["Sale Amt"] = ""
     cost["Differance"] = ""
 
-    # ================= FORMULAS =================
-    valid_size_grp = [
-        "0.30 - 0.39",
-        "0.40 - 0.49",
-        "0.50 - 0.59",
-        "0.60 - 0.69",
-        "0.70 - 0.79",
-        "0.80 - 0.89"
-    ]
-
-    for i in range(len(cost)):
-        if cost.loc[i, "Size Grp"] in valid_size_grp:
-            row_num = i + 2
-
-            cost.loc[i, "Cost Amt"] = f"=J{row_num}*F{row_num}"
-            cost.loc[i, "Sale Amt"] = f"=N{row_num}*F{row_num}"
-            cost.loc[i, "Differance"] = f"=Q{row_num}-P{row_num}"
-            cost.loc[i, "DIFFERENCE"] = f"=-ROUND((K{row_num}-N{row_num})/K{row_num}*100,2)"
-
-    # ================= FINAL FORMAT =================
+        # ================= FINAL FORMAT =================
     cost = cost[[
         "Lot #",
         "Status",
