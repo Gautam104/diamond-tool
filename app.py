@@ -138,9 +138,9 @@ if cost_file and panding_file and lab_file:
         "No of Days"
     ] = np.nan
 
-   # === SIZE GROUP ===============
+  # ================= SIZE GROUP =================
 
-    def get_size_grp(cts):
+def get_size_grp(cts):
     if pd.isna(cts):
         return ""
 
@@ -228,10 +228,11 @@ if cost_file and panding_file and lab_file:
         return "12.00 - 12.99"
     else:
         return ""
-    cost["Cts."] = pd.to_numeric(cost["Cts."], errors="coerce")
-    cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
 
-    # ================= ONLY HEADER COLUMNS =================
+cost["Cts."] = pd.to_numeric(cost["Cts."], errors="coerce")
+cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
+
+# ================= ONLY HEADER COLUMNS =================
     cost["UPDATED PRICE"] = ""
     cost["DIFFERENCE"] = ""
     cost["Cost Amt"] = ""
