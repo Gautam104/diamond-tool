@@ -94,6 +94,30 @@ def get_size_grp(cts):
         return "11.00 - 11.99"
     elif 12.00 <= cts <= 12.99:
         return "12.00 - 12.99"
+    elif 13.00 <= cts <= 13.99:
+        return "13.00 - 13.99"
+    elif 14.00 <= cts <= 14.99:
+        return "14.00 - 14.99"
+    elif 15.00 <= cts <= 15.99:
+        return "15.00 - 15.99"
+    elif 16.00 <= cts <= 16.99:
+        return "16.00 - 16.99"
+    elif 17.00 <= cts <= 17.99:
+        return "17.00 - 17.99"
+    elif 18.00 <= cts <= 18.99:
+        return "18.00 - 18.99"
+    elif 19.00 <= cts <= 19.99:
+        return "19.00 - 19.99"
+    elif 20.00 <= cts <= 20.99:
+        return "20.00 - 20.99"
+    elif 21.00 <= cts <= 21.99:
+        return "21.00 - 21.99"
+    elif 22.00 <= cts <= 22.99:
+        return "22.00 - 22.99"
+    elif 23.00 <= cts <= 23.99:
+        return "23.00 - 23.99"
+    elif 24.00 <= cts <= 24.99:
+        return "24.00 - 24.99"    
     else:
         return ""
 
