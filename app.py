@@ -138,6 +138,8 @@ if cost_file and panding_file and lab_file:
         "No of Days"
     ] = np.nan
 
+   # === SIZE GROUP ===============
+
     def get_size_grp(cts):
     if pd.isna(cts):
         return ""
