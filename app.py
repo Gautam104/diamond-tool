@@ -6,139 +6,7 @@ from openpyxl.styles import Font
 
 st.title("Diamond Tool")
 
-# Upload files
-cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
-panding_file = st.file_uploader("Upload Pending File", type=["xlsx"])
-lab_file = st.file_uploader("Upload Lab File", type=["xls", "xlsx"])
-
-if cost_file and panding_file and lab_file:
-
-    # ================= READ FILES =================
-    cost = pd.read_excel(cost_file)
-    panding = pd.read_excel(panding_file)
-
-    # ================= LAB FILE READ FIX (.xls + .xlsx) =================
-    if lab_file.name.endswith(".xls"):
-        lab = pd.read_excel(lab_file, header=2, engine="xlrd")
-    else:
-        lab = pd.read_excel(lab_file, header=2, engine="openpyxl")
-
-    # ================= CLEAN COLUMN NAMES =================
-    cost.columns = cost.columns.str.strip()
-    panding.columns = panding.columns.str.strip()
-    lab.columns = lab.columns.str.strip()
-
-    # ================= COST FILE =================
-    cost = cost[[
-        "Lot #",
-        "Shape",
-        "Color",
-        "Clarity",
-        "Cts.",
-        "GIA #",
-        "Lab",
-        "Quality",
-        "Price / Cts",
-        "Cost / Cts.",
-        "Rapnet Note"
-    ]]
-
-    # Keep only GIA / IGI / GCAL
-    cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
-
-    # ================= COLOR FILTER =================
-    valid_colors = ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
-
-    cost["Color"] = cost["Color"].astype(str).str.strip()
-    cost = cost[cost["Color"].isin(valid_colors)]
-
-    # ================= REMOVE VP SERIES =================
-    cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
-
-    cost = cost[
-        ~cost["Lot #"].str.upper().str.startswith("VP")
-    ]
-
-    # ================= QUALITY FIX =================
-    cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
-    cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
-
-    cost["Quality"] = cost["Quality"].replace(
-        ["Blank", "blank", "BLANK", "nan", "NaN"],
-        ""
-    )
-
-    # Fill CVD
-    cost.loc[
-        (cost["Quality"] == "") &
-        (cost["Rapnet Note"].str.contains("CVD", na=False)),
-        "Quality"
-    ] = "CVD"
-
-    # Fill HPHT
-    cost.loc[
-        (cost["Quality"] == "") &
-        (cost["Rapnet Note"].str.contains("HPHT", na=False)),
-        "Quality"
-    ] = "HPHT"
-
-    # ================= PENDING FILE FIX =================
-    panding["Customer"] = (
-        panding["Customer"]
-        .fillna("")
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    panding["Status"] = (
-        panding["Status"]
-        .fillna("")
-        .astype(str)
-        .str.strip()
-    )
-
-    panding.loc[
-        (
-            (panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS") |
-            (panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE")
-        ) &
-        (panding["Status"].str.upper() == "ONMEMO"),
-        "Status"
-    ] = "Inhand"
-
-    # ================= MERGE STATUS =================
-    panding = panding[["Lot #", "Status"]]
-    cost = cost.merge(panding, on="Lot #", how="left")
-
-    # ================= LAB FILE CLEAN =================
-    stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
-    days_col = [c for c in lab.columns if "old" in c.lower()][0]
-
-    lab = lab[[stock_col, days_col]]
-
-    lab = lab.rename(columns={
-        stock_col: "Lot #",
-        days_col: "No of Days"
-    })
-
-    # ================= MERGE LAB =================
-    cost = cost.merge(lab, on="Lot #", how="left")
-
-    # ================= NO OF DAYS FIX =================
-    cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
-
-    cost.loc[
-        (
-            cost["Lot #"].str.upper().str.startswith(("DM", "DC"))
-        ) &
-        (
-            cost["No of Days"] == 0
-        ),
-        "No of Days"
-    ] = np.nan
-
-  # ================= SIZE GROUP =================
+# ================= SIZE GROUP FUNCTION =================
 
 def get_size_grp(cts):
     if pd.isna(cts):
@@ -229,17 +97,146 @@ def get_size_grp(cts):
     else:
         return ""
 
-cost["Cts."] = pd.to_numeric(cost["Cts."], errors="coerce")
-cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
+# ================= FILE UPLOAD =================
 
-# ================= ONLY HEADER COLUMNS =================
+cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
+panding_file = st.file_uploader("Upload Pending File", type=["xlsx"])
+lab_file = st.file_uploader("Upload Lab File", type=["xls", "xlsx"])
+
+if cost_file and panding_file and lab_file:
+
+    # READ FILES
+    cost = pd.read_excel(cost_file)
+    panding = pd.read_excel(panding_file)
+
+    if lab_file.name.endswith(".xls"):
+        lab = pd.read_excel(lab_file, header=2, engine="xlrd")
+    else:
+        lab = pd.read_excel(lab_file, header=2, engine="openpyxl")
+
+    # CLEAN COLUMN NAMES
+    cost.columns = cost.columns.str.strip()
+    panding.columns = panding.columns.str.strip()
+    lab.columns = lab.columns.str.strip()
+
+    # COST FILE REQUIRED COLUMNS
+    cost = cost[[
+        "Lot #",
+        "Shape",
+        "Color",
+        "Clarity",
+        "Cts.",
+        "GIA #",
+        "Lab",
+        "Quality",
+        "Price / Cts",
+        "Cost / Cts.",
+        "Rapnet Note"
+    ]]
+
+    # LAB FILTER
+    cost = cost[cost["Lab"].isin(["GIA", "IGI", "GCAL"])]
+
+    # COLOR FILTER
+    valid_colors = ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
+    cost["Color"] = cost["Color"].astype(str).str.strip()
+    cost = cost[cost["Color"].isin(valid_colors)]
+
+    # REMOVE VP SERIES
+    cost["Lot #"] = cost["Lot #"].astype(str).str.strip()
+    cost = cost[
+        ~cost["Lot #"].str.upper().str.startswith("VP")
+    ]
+
+    # QUALITY FIX
+    cost["Quality"] = cost["Quality"].fillna("").astype(str).str.strip()
+    cost["Rapnet Note"] = cost["Rapnet Note"].fillna("").astype(str).str.upper()
+
+    cost["Quality"] = cost["Quality"].replace(
+        ["Blank", "blank", "BLANK", "nan", "NaN"],
+        ""
+    )
+
+    cost.loc[
+        (cost["Quality"] == "") &
+        (cost["Rapnet Note"].str.contains("CVD", na=False)),
+        "Quality"
+    ] = "CVD"
+
+    cost.loc[
+        (cost["Quality"] == "") &
+        (cost["Rapnet Note"].str.contains("HPHT", na=False)),
+        "Quality"
+    ] = "HPHT"
+
+    # PENDING FILE FIX
+    panding["Customer"] = (
+        panding["Customer"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    panding["Status"] = (
+        panding["Status"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
+
+    panding.loc[
+        (
+            (panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS") |
+            (panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE")
+        ) &
+        (panding["Status"].str.upper() == "ONMEMO"),
+        "Status"
+    ] = "Inhand"
+
+    # MERGE STATUS
+    panding = panding[["Lot #", "Status"]]
+    cost = cost.merge(panding, on="Lot #", how="left")
+
+    # LAB FILE CLEAN
+    stock_col = [c for c in lab.columns if "stock" in c.lower()][0]
+    days_col = [c for c in lab.columns if "old" in c.lower()][0]
+
+    lab = lab[[stock_col, days_col]]
+
+    lab = lab.rename(columns={
+        stock_col: "Lot #",
+        days_col: "No of Days"
+    })
+
+    # MERGE LAB
+    cost = cost.merge(lab, on="Lot #", how="left")
+
+    # NO OF DAYS FIX
+    cost["No of Days"] = pd.to_numeric(cost["No of Days"], errors="coerce")
+
+    cost.loc[
+        (
+            cost["Lot #"].str.upper().str.startswith(("DM", "DC"))
+        ) &
+        (
+            cost["No of Days"] == 0
+        ),
+        "No of Days"
+    ] = np.nan
+
+    # SIZE GROUP
+    cost["Cts."] = pd.to_numeric(cost["Cts."], errors="coerce")
+    cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
+
+    # EXTRA HEADER COLUMNS ONLY
     cost["UPDATED PRICE"] = ""
     cost["DIFFERENCE"] = ""
     cost["Cost Amt"] = ""
     cost["Sale Amt"] = ""
     cost["Differance"] = ""
 
-    # ================= FINAL FORMAT =================
+    # FINAL FORMAT
     cost = cost[[
         "Lot #",
         "Status",
@@ -261,7 +258,7 @@ cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
         "Differance"
     ]]
 
-    # ================= OUTPUT =================
+    # OUTPUT
     st.success("Processing Completed Successfully ✅")
 
     total_diamond = len(cost)
@@ -270,7 +267,7 @@ cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
 
     st.dataframe(cost)
 
-    # ================= DOWNLOAD =================
+    # DOWNLOAD EXCEL
     buffer = BytesIO()
 
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
