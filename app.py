@@ -238,22 +238,71 @@ if cost_file and panding_file and lab_file:
 
     cost["Size Grp"] = cost["Cts."].apply(get_size_grp)
 
-    # ================= FINAL FORMAT =================
-    cost = cost[[
-        "Lot #",
-        "Status",
-        "Shape",
-        "Color",
-        "Clarity",
-        "Cts.",
-        "Size Grp",
-        "No of Days",
-        "Price / Cts",
-        "Cost / Cts.",
-        "GIA #",
-        "Lab",
-        "Quality"
-    ]]
+   # ================= FINAL FORMAT =================
+# Replace your FINAL FORMAT section with this
+
+cost = cost[[
+    "Lot #",
+    "Status",
+    "Shape",
+    "Color",
+    "Clarity",
+    "Cts.",
+    "Size Grp",
+    "No of Days",
+    "Price / Cts",
+    "Cost / Cts.",
+    "GIA #",
+    "Lab",
+    "Quality"
+]]
+
+
+# ================= ADD EXTRA COLUMNS =================
+# Add this code AFTER FINAL FORMAT section
+
+# 1. UPDATED PRICE → only blank header
+cost["UPDATED PRICE"] = ""
+
+# 2. DIFFERENCE
+cost["DIFFERENCE"] = ""
+
+# 3. Cost Amt
+cost["Cost Amt"] = ""
+
+# 4. Sale Amt
+cost["Sale Amt"] = ""
+
+# 5. Differance
+cost["Differance"] = ""
+
+# ================= APPLY FORMULAS ONLY FOR THESE SIZE GROUPS =================
+
+valid_size_grp = [
+    "0.30 - 0.39",
+    "0.40 - 0.49",
+    "0.50 - 0.59",
+    "0.60 - 0.69",
+    "0.70 - 0.79",
+    "0.80 - 0.89"
+]
+
+for i in range(len(cost)):
+    if cost.loc[i, "Size Grp"] in valid_size_grp:
+        row_num = i + 2
+
+        # Cost Amt = Price / Cts × Cts.
+        cost.loc[i, "Cost Amt"] = f"=J{row_num}*F{row_num}"
+
+        # Sale Amt = UPDATED PRICE × Cts.
+        cost.loc[i, "Sale Amt"] = f"=N{row_num}*F{row_num}"
+
+        # Differance = Sale Amt - Cost Amt
+        cost.loc[i, "Differance"] = f"=Q{row_num}-P{row_num}"
+
+        # DIFFERENCE = -ROUND((Cost - Updated Price)/Cost * 100,2)
+        cost.loc[i, "DIFFERENCE"] = f"=-ROUND((K{row_num}-N{row_num})/K{row_num}*100,2)"
+
 
     # ================= TOTAL DIAMOND COUNT =================
     st.success("Processing Completed Successfully ✅")
