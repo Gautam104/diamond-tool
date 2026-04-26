@@ -16,7 +16,12 @@ if cost_file and panding_file and lab_file:
     # ================= READ FILES =================
     cost = pd.read_excel(cost_file)
     panding = pd.read_excel(panding_file)
-    lab = pd.read_excel(lab_file, header=2)
+
+    # ================= LAB FILE READ FIX (.xls + .xlsx) =================
+    if lab_file.name.endswith(".xls"):
+        lab = pd.read_excel(lab_file, header=2, engine="xlrd")
+    else:
+        lab = pd.read_excel(lab_file, header=2, engine="openpyxl")
 
     # ================= CLEAN COLUMN NAMES =================
     cost.columns = cost.columns.str.strip()
@@ -190,36 +195,6 @@ if cost_file and panding_file and lab_file:
             return "3.56 - 3.59"
         elif 3.60 <= cts <= 3.99:
             return "3.60 - 3.99"
-        elif 4.00 <= cts <= 4.05:
-            return "4.00 - 4.05"
-        elif 4.06 <= cts <= 4.10:
-            return "4.06 - 4.10"
-        elif 4.11 <= cts <= 4.49:
-            return "4.11 - 4.49"
-        elif 4.50 <= cts <= 4.55:
-            return "4.50 - 4.55"
-        elif 4.56 <= cts <= 4.59:
-            return "4.56 - 4.59"
-        elif 4.60 <= cts <= 4.99:
-            return "4.60 - 4.99"
-        elif 5.00 <= cts <= 5.49:
-            return "5.00 - 5.49"
-        elif 5.50 <= cts <= 5.99:
-            return "5.50 - 5.99"
-        elif 6.00 <= cts <= 6.99:
-            return "6.00 - 6.99"
-        elif 7.00 <= cts <= 7.99:
-            return "7.00 - 7.99"
-        elif 8.00 <= cts <= 8.99:
-            return "8.00 - 8.99"
-        elif 9.00 <= cts <= 9.99:
-            return "9.00 - 9.99"
-        elif 10.00 <= cts <= 10.99:
-            return "10.00 - 10.99"
-        elif 11.00 <= cts <= 11.99:
-            return "11.00 - 11.99"
-        elif 12.00 <= cts <= 12.99:
-            return "12.00 - 12.99"
         else:
             return ""
 
