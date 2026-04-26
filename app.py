@@ -31,18 +31,19 @@ if cost_file and panding_file and lab_file:
     lab.columns = lab.columns.str.strip()
 
     # ================= COST CLEAN =================
-    cost = cost[[
-        "Lot #",
-        "Shape",
-        "Color",
-        "Clarity",
-        "Cts.",
-        "Lab",
-        "Quality",
-        "Price / Cts",
-        "Cost / Cts.",
-        "Rapnet Note"
-    ]]
+cost = cost[[
+    "Lot #",
+    "Shape",
+    "Color",
+    "Clarity",
+    "Cts.",
+    "GIA #",
+    "Lab",
+    "Quality",
+    "Price / Cts",
+    "Cost / Cts.",
+    "Rapnet Note"
+]]
 
     # ================= LAB FILTER =================
     # Keep only GIA / IGI / GCAL
@@ -148,19 +149,20 @@ if cost_file and panding_file and lab_file:
 
     # ================= FINAL FORMAT =================
 
-    cost = cost[[
-        "Lot #",
-        "Status",
-        "Shape",
-        "Color",
-        "Clarity",
-        "Cts.",
-        "No of Days",
-        "Price / Cts",
-        "Cost / Cts.",
-        "Lab",
-        "Quality"
-    ]]
+   cost = cost[[
+    "Lot #",
+    "Status",
+    "Shape",
+    "Color",
+    "Clarity",
+    "Cts.",
+    "No of Days",
+    "Price / Cts",
+    "Cost / Cts.",
+    "GIA #",
+    "Lab",
+    "Quality"
+]]
 
     # ================= SIMPLE TOTAL DIAMOND COUNT =================
 
