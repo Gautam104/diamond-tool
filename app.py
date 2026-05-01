@@ -218,7 +218,24 @@ if cost_file and panding_file and lab_file:
         "Status"
     ] = "Inhand"
 
-    # MERGE STATUS
+        # ================= FIX LOT MATCH =================
+    cost["Lot #"] = (
+        cost["Lot #"]
+        .astype(str)
+        .str.replace(".0", "", regex=False)
+        .str.strip()
+        .str.upper()
+    )
+
+    panding["Lot #"] = (
+        panding["Lot #"]
+        .astype(str)
+        .str.replace(".0", "", regex=False)
+        .str.strip()
+        .str.upper()
+    )
+
+    # ================= MERGE STATUS =================
     panding = panding[["Lot #", "Status"]]
     cost = cost.merge(panding, on="Lot #", how="left")
 
