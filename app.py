@@ -316,8 +316,18 @@ if cost_file and panding_file and lab_file:
 
         worksheet = writer.sheets["Final Output"]
 
+        # Bold header
         for cell in worksheet[1]:
             cell.font = Font(bold=True)
+
+        # ================= ADD DIFFERENCE FORMULA =================
+        diff_col_index = list(cost.columns).index("DIFFERENCE") + 1
+
+        for row in range(2, len(cost) + 2):
+            worksheet.cell(
+                row=row,
+                column=diff_col_index
+            ).value = f"=-ROUND((J{row}-N{row})/J{row},2)"
 
     buffer.seek(0)
 
