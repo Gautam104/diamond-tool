@@ -327,7 +327,7 @@ if cost_file and panding_file and lab_file:
             worksheet.cell(
                 row=row,
                 column=diff_col_index
-            ).value = f"=-ROUND((J{row}-N{row})/J{row},2)"
+            ).value = f"=-ROUND((J{row}-N{row})/J{row}%,2)"
 
     buffer.seek(0)
 
