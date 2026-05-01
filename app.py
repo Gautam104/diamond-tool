@@ -209,7 +209,7 @@ if cost_file and panding_file and lab_file:
         .str.strip()
     )
 
-           panding.loc[
+    panding.loc[
         (
             (panding["Customer"] == "GOODS IN TRANSIT FROM OVERSEAS") |
             (panding["Customer"] == "GOODS IN OFFICE - PARCEL PAPERS BEING MADE")
