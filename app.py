@@ -14,10 +14,8 @@ def get_size_grp(cts):
 
     cts = float(cts)
 
-    if 0.30 <= cts <= 0.39:
-        return "0.30 - 0.39"
-    elif 0.40 <= cts <= 0.49:
-        return "0.40 - 0.49"
+    if 0.30 <= cts <= 0.49:
+        return "0.30 - 0.49"
     elif 0.50 <= cts <= 0.59:
         return "0.50 - 0.59"
     elif 0.60 <= cts <= 0.69:
@@ -32,95 +30,104 @@ def get_size_grp(cts):
         return "1.00 - 1.05"
     elif 1.06 <= cts <= 1.10:
         return "1.06 - 1.10"
-    elif 1.11 <= cts <= 1.49:
-        return "1.11 - 1.49"
+    elif 1.11 <= cts <= 1.19:
+        return "1.11 - 1.19"
+    elif 1.20 <= cts <= 1.29:
+        return "1.20 - 1.29"
+    elif 1.30 <= cts <= 1.39:
+        return "1.30 - 1.39"
+    elif 1.40 <= cts <= 1.49:
+        return "1.40 - 1.49"
     elif 1.50 <= cts <= 1.55:
         return "1.50 - 1.55"
     elif 1.56 <= cts <= 1.59:
         return "1.56 - 1.59"
-    elif 1.60 <= cts <= 1.99:
-        return "1.60 - 1.99"
+    elif 1.60 <= cts <= 1.69:
+        return "1.60 - 1.69"
+    elif 1.70 <= cts <= 1.79:
+        return "1.70 - 1.79"
+    elif 1.80 <= cts <= 1.89:
+        return "1.80 - 1.89"
+    elif 1.90 <= cts <= 1.99:
+        return "1.90 - 1.99"
     elif 2.00 <= cts <= 2.05:
         return "2.00 - 2.05"
     elif 2.06 <= cts <= 2.10:
         return "2.06 - 2.10"
-    elif 2.11 <= cts <= 2.49:
-        return "2.11 - 2.49"
+    elif 2.11 <= cts <= 2.19:
+        return "2.11 - 2.19"
+    elif 2.20 <= cts <= 2.29:
+        return "2.20 - 2.29"
+    elif 2.30 <= cts <= 2.39:
+        return "2.30 - 2.39"
+    elif 2.40 <= cts <= 2.49:
+        return "2.40 - 2.49"
     elif 2.50 <= cts <= 2.55:
         return "2.50 - 2.55"
     elif 2.56 <= cts <= 2.59:
         return "2.56 - 2.59"
-    elif 2.60 <= cts <= 2.99:
-        return "2.60 - 2.99"
+    elif 2.60 <= cts <= 2.69:
+        return "2.60 - 2.69"
+    elif 2.70 <= cts <= 2.79:
+        return "2.70 - 2.79"
+    elif 2.80 <= cts <= 2.89:
+        return "2.80 - 2.89"
+    elif 2.90 <= cts <= 2.99:
+        return "2.90 - 2.99"
     elif 3.00 <= cts <= 3.05:
         return "3.00 - 3.05"
     elif 3.06 <= cts <= 3.10:
         return "3.06 - 3.10"
-    elif 3.11 <= cts <= 3.49:
-        return "3.11 - 3.49"
+    elif 3.11 <= cts <= 3.19:
+        return "3.11 - 3.19"
+    elif 3.20 <= cts <= 3.29:
+        return "3.20 - 3.29"
+    elif 3.30 <= cts <= 3.39:
+        return "3.30 - 3.39"
+    elif 3.40 <= cts <= 3.49:
+        return "3.40 - 3.49"
     elif 3.50 <= cts <= 3.55:
         return "3.50 - 3.55"
     elif 3.56 <= cts <= 3.59:
         return "3.56 - 3.59"
-    elif 3.60 <= cts <= 3.99:
-        return "3.60 - 3.99"
-    elif 4.00 <= cts <= 4.05:
-        return "4.00 - 4.05"
-    elif 4.06 <= cts <= 4.10:
-        return "4.06 - 4.10"
+    elif 3.60 <= cts <= 3.69:
+        return "3.60 - 3.69"
+    elif 3.70 <= cts <= 3.79:
+        return "3.70 - 3.79"
+    elif 3.80 <= cts <= 3.89:
+        return "3.80 - 3.89"
+    elif 3.90 <= cts <= 3.99:
+        return "3.90 - 3.99"
+    elif 4.00 <= cts <= 4.10:
+        return "4.00 - 4.10"
     elif 4.11 <= cts <= 4.49:
         return "4.11 - 4.49"
-    elif 4.50 <= cts <= 4.55:
-        return "4.50 - 4.55"
-    elif 4.56 <= cts <= 4.59:
-        return "4.56 - 4.59"
+    elif 4.50 <= cts <= 4.59:
+        return "4.50 - 4.59"
     elif 4.60 <= cts <= 4.99:
         return "4.60 - 4.99"
-    elif 5.00 <= cts <= 5.49:
-        return "5.00 - 5.49"
-    elif 5.50 <= cts <= 5.99:
-        return "5.50 - 5.99"
-    elif 6.00 <= cts <= 6.99:
-        return "6.00 - 6.99"
+    elif 5.00 <= cts <= 5.10:
+        return "5.00 - 5.10"
+    elif 5.11 <= cts <= 5.49:
+        return "5.11 - 5.49"
+    elif 5.50 <= cts <= 5.59:
+        return "5.50 - 5.59"
+    elif 5.60 <= cts <= 5.99:
+        return "5.60 - 5.99"
+    elif 6.00 <= cts <= 6.10:
+        return "6.00 - 6.10"
+    elif 6.11 <= cts <= 6.49:
+        return "6.11 - 6.49"
+    elif 6.50 <= cts <= 6.59:
+        return "6.50 - 6.59"
+    elif 6.60 <= cts <= 6.99:
+        return "6.60 - 6.99"
     elif 7.00 <= cts <= 7.99:
         return "7.00 - 7.99"
     elif 8.00 <= cts <= 8.99:
         return "8.00 - 8.99"
-    elif 9.00 <= cts <= 9.99:
-        return "9.00 - 9.99"
-    elif 10.00 <= cts <= 10.99:
-        return "10.00 - 10.99"
-    elif 11.00 <= cts <= 11.99:
-        return "11.00 - 11.99"
-    elif 12.00 <= cts <= 12.99:
-        return "12.00 - 12.99"
-    elif 13.00 <= cts <= 13.99:
-        return "13.00 - 13.99"
-    elif 14.00 <= cts <= 14.99:
-        return "14.00 - 14.99"
-    elif 15.00 <= cts <= 15.99:
-        return "15.00 - 15.99"
-    elif 16.00 <= cts <= 16.99:
-        return "16.00 - 16.99"
-    elif 17.00 <= cts <= 17.99:
-        return "17.00 - 17.99"
-    elif 18.00 <= cts <= 18.99:
-        return "18.00 - 18.99"
-    elif 19.00 <= cts <= 19.99:
-        return "19.00 - 19.99"
-    elif 20.00 <= cts <= 20.99:
-        return "20.00 - 20.99"
-    elif 21.00 <= cts <= 21.99:
-        return "21.00 - 21.99"
-    elif 22.00 <= cts <= 22.99:
-        return "22.00 - 22.99"
-    elif 23.00 <= cts <= 23.99:
-        return "23.00 - 23.99"
-    elif 24.00 <= cts <= 24.99:
-        return "24.00 - 24.99"    
     else:
         return ""
-
 # ================= FILE UPLOAD =================
 
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
