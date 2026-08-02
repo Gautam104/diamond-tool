@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from io import BytesIO
-from openpyxl.styles import Font
+from openpyxl.styles import Font, PatternFill
+import re
 
 st.title("Diamond Tool")
 
@@ -128,6 +129,26 @@ def get_size_grp(cts):
         return "8.00 - 8.99"
     else:
         return ""
+
+# ================= MATCHING PAIR FUNCTIONS =================
+
+pair_fill = PatternFill(
+    fill_type="solid",
+    start_color="7030A0",   # Dark Purple
+    end_color="7030A0"
+)
+
+def get_pair_base(lot):
+
+    lot = str(lot).strip().upper()
+    if re.match(r"^.+[A-Z]$", lot):
+        return lot[:-1]
+
+    return None
+
+
+
+
 # ================= FILE UPLOAD =================
 
 cost_file = st.file_uploader("Upload Cost File", type=["xlsx"])
@@ -305,6 +326,18 @@ if cost_file and panding_file and lab_file:
         "Sale Amt",
         "Differance"
     ]]
+    # ================= FIND MATCHING PAIRS =================
+    pair_groups = {}
+    for lot in cost["Lot #"]:
+         base = get_pair_base(lot)
+         if base:
+             pair_groups.setdefault(base, []).append(str(lot).upper())
+    matched_pairs = {
+        base
+        for base, lots in pair_groups.items()
+        if len(lots) >= 2
+    }
+
 
     # OUTPUT
     st.success("Processing Completed Successfully ✅")
@@ -322,6 +355,18 @@ if cost_file and panding_file and lab_file:
         cost.to_excel(writer, index=False, sheet_name="Final Output")
 
         worksheet = writer.sheets["Final Output"]
+        # ================= HIGHLIGHT MATCHING PAIRS =================
+        for row in range(2, len(cost) + 2):
+            lot = str(worksheet.cell(row=row, column=1).value).strip().upper()
+            base = get_pair_base(lot)
+            if base in matched_pairs:
+                for col in range(1, worksheet.max_column + 1):
+                    worksheet.cell(row=row, column=col).fill = pair_fill
+
+
+
+
+
 
         # Bold header
         for cell in worksheet[1]:
