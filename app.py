@@ -132,10 +132,15 @@ def get_size_grp(cts):
 
 # ================= MATCHING PAIR FUNCTIONS =================
 
-pair_fill = PatternFill(
+light_fill = PatternFill(
     fill_type="solid",
-    start_color="7030A0",   # Dark Purple
-    end_color="7030A0"
+    start_color="D9D2E9",   # Dark Purple
+    end_color="D9D2E9"
+)
+dark_fill = PatternFill(
+    fill_type="solid",
+    start_color="B4A7D6",
+    end_color="B4A7D6"
 )
 
 def get_pair_base(lot):
@@ -360,8 +365,17 @@ if cost_file and panding_file and lab_file:
             lot = str(worksheet.cell(row=row, column=1).value).strip().upper()
             base = get_pair_base(lot)
             if base in matched_pairs:
+                last_char = lot[-1]
+                if last_char in ["A", "C", "E", "G", "I", "K", "M", "O", "Q", "S", "U", "W", "Y"]:
+                    fill = light_fill
+                else:
+                    fill = dark_fill
                 for col in range(1, worksheet.max_column + 1):
-                    worksheet.cell(row=row, column=col).fill = pair_fill
+                    worksheet.cell(row=row, column=col).fill = fill
+    
+
+                
+                    
 
 
 
